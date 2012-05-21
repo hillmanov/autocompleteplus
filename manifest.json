@@ -5,8 +5,15 @@
   "content_scripts": [
     {
       "matches": ["http://*/*","https://*/*", "file:///*/*"],
-      "css": ["css/redmond/jquery-ui-1.8.20.custom.css"],
+      "css": ["css/redmond/jquery-ui-1.8.20.custom.css", "override.css"],
       "js": ["jquery-1.7.2.min.js", "jquery-ui-1.8.20.custom.min.js", "main.js"]
     }
-  ]
+  ],
+  "permissions": [
+    "contextMenus", 
+    "tabs"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  }
 }
