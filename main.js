@@ -1,6 +1,7 @@
 $(document).ready(function() {
 
 	var DEFAULT_VALUE_SUFFIX = "-default-value";
+	var HISTORY = 6;
 
 	$("input[type!='submit'],textarea").each(function(i, e) {
 		var name = $(this).attr('name');
@@ -43,7 +44,7 @@ $(document).ready(function() {
 		});
 		
 		fieldLocalStorage.push(val);
-		fieldLocalStorage = fieldLocalStorage.slice(-10);
+		fieldLocalStorage = fieldLocalStorage.slice(-HISTORY);
 
 		localStorage[name] = JSON.stringify(fieldLocalStorage);
 	}
@@ -60,12 +61,12 @@ $(document).ready(function() {
 
 	function clearDefaultValue(name) {
 		delete localStorage[name + DEFAULT_VALUE_SUFFIX];
-		alert("Default value cleared");
+		$.achtung({message: 'Default value cleared', className: 'achtungFail', timeout:5});
 	}
 
 	function setDefaultValue(name, val) {
 		localStorage[name + DEFAULT_VALUE_SUFFIX] = val;
-		alert("Default value set");
+		$.achtung({message: 'Default value set', className: 'achtungSuccess', timeout:5});
 	}
 
 	function getDefaultValue(name) {
