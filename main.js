@@ -1,93 +1,96 @@
 $(document).ready(function() {
 
-	var DEFAULT_VALUE_SUFFIX = "-default-value";
-	var HISTORY = 6;
+  var DEFAULT_VALUE_SUFFIX = "-default-value";
+  var HISTORY = 6;
 
-	$("input[type!='submit'],textarea").each(function(i, e) {
-		var name = $(this).attr('name');
+  $("input:not([type='submit']):not([type='password']),textarea").each(function(i, e) {
+    
+    initAutocompleteForField($(this));
+    
+    $(".ui-autocomplete").eq(i).css('width', $(this).width());
 
-		var source;
-		if (source = getFieldStorage(name)) {
-			$(this).autocomplete({
-				source: source.reverse(),
-				minLength: 0
-			}).on('click focus', function() {
-				$(this).autocomplete('search', '');
-			});
-		}
-		
-		$(".ui-autocomplete").eq(i).css('width', $(this).width());
+    var name = $(this).attr('name');
+    var defaultValue;
+    if (defaultValue = getDefaultValue(name)) {
+      $(this).val(defaultValue);
+    }
 
-		var defaultValue;
-		if (defaultValue = getDefaultValue(name)) {
-			$(this).val(defaultValue);
-		}
-	});
+  }).on('blur', function() {
+    var name = $(this).attr('name');
+    var val = $(this).val();
+    if (val.length) {
+      updateStore(name, val);
+    }
+    initAutocompleteForField($(this));
+  });
 
-	$("form").submit(function() {
-		$("input[type!='submit'],textarea").each(function(i, e) {
-			var name = $(this).attr('name');
-			var val = $(this).val();
-			if (val.length) {
-				updateStore(name, val);
-			}
-		});
-		return true;
-	})
+  function initAutocompleteForField(field) {
+    var name = $(field).attr('name');
 
-	function updateStore(name, val) {
-		var fieldLocalStorage = getFieldStorage(name);
-		
-		// Remove any past duplicates
-		fieldLocalStorage = $.grep(fieldLocalStorage, function(value) {
-		  return value != val;
-		});
-		
-		fieldLocalStorage.push(val);
-		fieldLocalStorage = fieldLocalStorage.slice(-HISTORY);
+    var source;
+    if (source = getFieldStorage(name)) {
+      $(field).autocomplete({
+        source: source.reverse(),
+        minLength: 0
+      }).on('click focus', function() {
+        $(field).autocomplete('search', '');
+      });
+    }
+  }
 
-		localStorage[name] = JSON.stringify(fieldLocalStorage);
-	}
+  function updateStore(name, val) {
+    var fieldLocalStorage = getFieldStorage(name);
+    
+    // Remove any past duplicates
+    fieldLocalStorage = $.grep(fieldLocalStorage, function(value) {
+      return value != val;
+    });
+    
+    fieldLocalStorage.push(val);
+    fieldLocalStorage = fieldLocalStorage.slice(-HISTORY);
 
-	function getFieldStorage(name) {
-		var fieldLocalStorage = localStorage[name];
-		if (fieldLocalStorage) {
-			return JSON.parse(fieldLocalStorage);
-		}
-		else {
-			return [];
-		}
-	}
+    localStorage[name] = JSON.stringify(fieldLocalStorage);
+  }
 
-	function clearDefaultValue(name) {
-		delete localStorage[name + DEFAULT_VALUE_SUFFIX];
-		$.achtung({message: 'Default value cleared', className: 'achtungFail', timeout:5});
-	}
+  function getFieldStorage(name) {
+    var fieldLocalStorage = localStorage[name];
+    if (fieldLocalStorage) {
+      return JSON.parse(fieldLocalStorage);
+    }
+    else {
+      return [];
+    }
+  }
 
-	function setDefaultValue(name, val) {
-		localStorage[name + DEFAULT_VALUE_SUFFIX] = val;
-		$.achtung({message: 'Default value set', className: 'achtungSuccess', timeout:5});
-	}
+  function clearDefaultValue(name) {
+    delete localStorage[name + DEFAULT_VALUE_SUFFIX];
+    $.achtung({message: 'Default value cleared', className: 'achtungFail', timeout:5});
+  }
 
-	function getDefaultValue(name) {
-		return localStorage[name + DEFAULT_VALUE_SUFFIX];
-	}
+  function setDefaultValue(name, val) {
+    localStorage[name + DEFAULT_VALUE_SUFFIX] = val;
+    $.achtung({message: 'Default value set', className: 'achtungSuccess', timeout:5});
+  }
 
-	chrome.extension.onRequest.addListener(
-		function(request, sender, sendResponse) {
-			
-			var fieldName = $(document.activeElement).attr('name');
+  function getDefaultValue(name) {
+    return localStorage[name + DEFAULT_VALUE_SUFFIX];
+  }
 
-			switch(request.action) {
-				case 'create':
-					var value = $(document.activeElement).val();
-					setDefaultValue(fieldName, value);
-					break;
+  chrome.extension.onRequest.addListener(
+    function(request, sender, sendResponse) {
+      
+      var fieldName = $(document.activeElement).attr('name');
 
-				case 'delete':
-					clearDefaultValue(fieldName);
-					break;
-			}
-		}
-	);
+      switch(request.action) {
+        case 'create':
+          var value = $(document.activeElement).val();
+          setDefaultValue(fieldName, value);
+          break;
+
+        case 'delete':
+          clearDefaultValue(fieldName);
+          break;
+      }
+    }
+  );
 });
