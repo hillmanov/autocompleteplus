@@ -9,10 +9,13 @@ $(document).ready(function() {
     
     $(".ui-autocomplete").eq(i).css('width', $(this).width());
 
-    var name = $(this).attr('name');
-    var defaultValue;
-    if (defaultValue = getDefaultValue(name)) {
-      $(this).val(defaultValue);
+    // Only fill in the default value if there isn't something there already
+    if (!$(this).val()) {
+      var name = $(this).attr('name');
+      var defaultValue;
+      if (defaultValue = getDefaultValue(name)) {
+        $(this).val(defaultValue);
+      }
     }
 
   }).on('blur', function() {

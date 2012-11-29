@@ -1,10 +1,10 @@
 {
   "name": "Autocomplete+",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "manifest_version": 2,
   "content_scripts": [
     {
-      "matches": ["http://www.utahbodsquad.com/*","http://excelrehab.homehealthcaresos.com/*", "https://excelrehab.homehealthcaresos.com/*","https://www.utahbodsquad.com/*"],
+      "matches": ["http://*/*", "https://*/*", "file:///*/*"],
       "css": ["css/redmond/jquery-ui-1.8.20.custom.css", "css/override.css", "css/ui.achtung-min.css"],
       "js": ["lib/jquery-1.7.2.min.js", "lib/jquery-ui-1.8.20.custom.min.js", "lib/ui.achtung-min.js", "main.js"]
     }
